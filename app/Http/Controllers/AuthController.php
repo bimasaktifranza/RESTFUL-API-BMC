@@ -57,11 +57,13 @@ class AuthController extends Controller
                 'no_reg' => (string) $user->no_reg,
                 'username' => $user->username,
                 'nama' => $user->nama,
+                'role' => 'pasien',
             ]
             : [
                 'id' => (string) $user->id,
                 'username' => $user->username,
                 'nama' => $user->nama,
+                'role' => 'bidan',
             ];
 
         // 🔹 Generate token hanya di controller

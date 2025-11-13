@@ -54,4 +54,51 @@ class BidanService
             'bidan_id' => $bidanId, // dikaitkan ke bidan yang sedang login
         ]);
     }
+
+    //Lihat datapasien
+    public function lihatDataPasien(string $bidanId)
+    {
+        return Pasien::where('bidan_id', $bidanId)->get();
+    }
+
+    //Mulai persalinan
+    public function mulaiPersalinan(Pasien $pasien): Persalinan
+    {
+        $existing = Persalinan::where('pasien_id', $pasien->id)
+            ->where('status', '!=', 'selesai')
+            ->first();
+
+        if ($existing) {
+            throw ValidationException::withMessages([
+                'persalinan' => 'Pasien ini sudah memiliki persalinan aktif.',
+            ]);
+        }
+
+        return Persalinan::create([
+            'pasien_id' => $pasien->id,
+            'tanggalAwalRawat' => now(),
+            'status' => 'aktif',
+        ]);
+    }
+
+    //Kirim pesan ke pasien
+     public function kirimPesan(string $bidanId, string $pasienId, string $isiPesan)
+    {
+        $bidan = Bidan::find($bidanId);
+        $pasien = Pasien::find($pasienId);
+
+        if (!$bidan || !$pasien) {
+            throw ValidationException::withMessages([
+                'target' => 'Bidan atau Pasien tidak ditemukan.',
+            ]);
+        }
+
+        return Pesan::create([
+            'bidan_id' => $bidan->id,
+            'pasien_id' => $pasien->id,
+            'isiPesan' => $isiPesan,
+            'pengirim' => 'bidan',
+            'waktuKirim' => now(),
+        ]);
+    }
 }
