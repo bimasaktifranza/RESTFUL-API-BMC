@@ -17,10 +17,11 @@ return new class extends Migration
             $table->timestamp('tanggal_jam_rawat')->nullable();
             $table->timestamp('tanggal_jam_mules')->nullable();
             $table->boolean('ketuban_pecah')->nullable()->default(false);
-            $table->string('pasien_no_reg')->nullable();
+            $table->decimal('pasien_no_reg')->nullable();
             $table->string('partograf_id', 25)->nullable();
+            $table->string('status', 20)->default('tidak_aktif');
         });
-        DB::statement("alter table \"persalinan\" add column \"status\" status_enum null default 'nonaktif'");
+        
     }
 
     /**

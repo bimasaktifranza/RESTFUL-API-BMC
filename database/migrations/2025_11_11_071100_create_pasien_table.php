@@ -12,16 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('pasien', function (Blueprint $table) {
-            $table->decimal('no_reg')->primary();
-            $table->string('username', 25);
+            $table->string('no_reg', 25)->primary(); // Primary key, input manual
+            $table->string('username', 25)->unique();
             $table->string('nama', 100);
             $table->string('password');
-            $table->string('alamat', 25);
-            $table->decimal('umur');
-            $table->decimal('gravida');
-            $table->decimal('paritas');
-            $table->decimal('abortus');
+            $table->string('alamat', 60);
+            $table->string('umur', 3); // umur sebagai string, max 3 karakter
+            $table->string('gravida', 3); // jumlah kehamilan
+            $table->string('paritas', 3); // jumlah persalinan
+            $table->string('abortus', 3); // jumlah keguguran
             $table->string('bidan_id', 25)->nullable();
+            $table->timestamps();
         });
     }
 

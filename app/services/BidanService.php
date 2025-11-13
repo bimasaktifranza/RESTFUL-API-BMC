@@ -12,93 +12,64 @@ class BidanService
     /**
      * 🔹 Login Bidan
      */
-     public function login(array $credentials)
-    {
-        $bidan = Bidan::where('username', $credentials['username'])->first();
-        if ($bidan && Hash::check($credentials['password'], $bidan->password)) {
-            return $bidan;
-        }
+     public function login(array $credentials): ?Bidan
+     {
+        return Bidan::login($credentials['username'], $credentials['password']);
+     }
 
-        return null;
-    }
 
     /**
      * 🔹 Bidan membuat pasien baru.
      */
-    public function createPasien(array $data, string $bidanId): Pasien
+   public function createPasien(array $data, Bidan $bidan): Pasien
     {
-        // Cek duplikasi no_reg atau username
+        // Username otomatis sama dengan nama
+        $username = $data['nama'];
+
+        // Cek duplikasi no_reg dan username
         if (Pasien::where('no_reg', $data['no_reg'])->exists()) {
             throw ValidationException::withMessages([
                 'no_reg' => 'Nomor registrasi sudah terdaftar.',
             ]);
         }
 
-        if (Pasien::where('username', $data['username'])->exists()) {
+        if (Pasien::where('username', $username)->exists()) {
             throw ValidationException::withMessages([
                 'username' => 'Username sudah terdaftar.',
             ]);
         }
 
-        // Buat pasien baru
+        // Password default sama dengan username jika tidak diberikan
+        $password = $data['password'] ?? $username;
+
         return Pasien::create([
             'no_reg' => $data['no_reg'],
-            'username' => $data['username'],
+            'username' => $username,
             'nama' => $data['nama'],
-            'password' => Hash::make($data['password']),
+            'password' => Hash::make($password),
             'alamat' => $data['alamat'],
             'umur' => $data['umur'],
             'gravida' => $data['gravida'],
             'paritas' => $data['paritas'],
             'abortus' => $data['abortus'],
-            'bidan_id' => $bidanId, // dikaitkan ke bidan yang sedang login
+            'bidan_id' => $bidan->id
         ]);
     }
 
     //Lihat datapasien
-    public function lihatDataPasien(string $bidanId)
+    public function lihatDaftarPasien(Bidan $bidan)
     {
-        return Pasien::where('bidan_id', $bidanId)->get();
+        return $bidan->lihatDaftarPasien();
     }
 
     //Mulai persalinan
-    public function mulaiPersalinan(Pasien $pasien): Persalinan
+    public function mulaiPersalinan(Bidan $bidan, Pasien $pasien)
     {
-        $existing = Persalinan::where('pasien_id', $pasien->id)
-            ->where('status', '!=', 'selesai')
-            ->first();
-
-        if ($existing) {
-            throw ValidationException::withMessages([
-                'persalinan' => 'Pasien ini sudah memiliki persalinan aktif.',
-            ]);
-        }
-
-        return Persalinan::create([
-            'pasien_id' => $pasien->id,
-            'tanggalAwalRawat' => now(),
-            'status' => 'aktif',
-        ]);
+        return $bidan->mulaiPersalinan($pasien);
     }
 
-    //Kirim pesan ke pasien
-     public function kirimPesan(string $bidanId, string $pasienId, string $isiPesan)
+    public function kirimPesan(Bidan $bidan, Pasien $pasien, string $isiPesan)
     {
-        $bidan = Bidan::find($bidanId);
-        $pasien = Pasien::find($pasienId);
-
-        if (!$bidan || !$pasien) {
-            throw ValidationException::withMessages([
-                'target' => 'Bidan atau Pasien tidak ditemukan.',
-            ]);
-        }
-
-        return Pesan::create([
-            'bidan_id' => $bidan->id,
-            'pasien_id' => $pasien->id,
-            'isiPesan' => $isiPesan,
-            'pengirim' => 'bidan',
-            'waktuKirim' => now(),
-        ]);
+        return $bidan->kirimPesan($pasien, $isiPesan);
     }
 }

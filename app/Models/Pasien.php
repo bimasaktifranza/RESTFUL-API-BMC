@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Support\Facades\Hash;
+use App\Models\Bidan;
 
 class Pasien extends Authenticatable implements JWTSubject
 {
@@ -29,9 +31,7 @@ class Pasien extends Authenticatable implements JWTSubject
         'bidan_id',
     ];
 
-    protected $hidden = [
-        'password',
-    ];
+    protected $hidden = ['password'];
 
     protected $casts = [
         'umur' => 'integer',
@@ -40,13 +40,35 @@ class Pasien extends Authenticatable implements JWTSubject
         'abortus' => 'integer',
     ];
 
-    // 🔗 Relasi ke tabel bidan
+    // Relasi ke bidan
     public function bidan()
     {
         return $this->belongsTo(Bidan::class, 'bidan_id', 'id');
     }
 
-    // --- Metode Wajib JWT ---
+    // Login pasien
+    public static function login(string $username, string $password): ?self
+{
+    $pasien = self::where('username', $username)->first();
+
+    if (!$pasien || !Hash::check($password, $pasien->password)) {
+        return null;
+    }
+
+    return $pasien;
+}
+
+    // Generate no_reg otomatis
+    public static function generateNoReg(): string
+    {
+        $tahun = date('Y');
+        $jumlahPasienTahunIni = self::where('no_reg', 'like', "PASIEN%$tahun")->count();
+        $n = $jumlahPasienTahunIni + 1;
+
+        return "PASIEN{$n}{$tahun}";
+    }
+
+    // JWT methods
     public function getJWTIdentifier()
     {
         return $this->getKey();
@@ -54,8 +76,6 @@ class Pasien extends Authenticatable implements JWTSubject
 
     public function getJWTCustomClaims()
     {
-        return [
-            'role' => 'pasien', // bisa dipakai buat identifikasi guard
-        ];
+        return ['role' => 'pasien'];
     }
 }

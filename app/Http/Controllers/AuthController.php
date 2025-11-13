@@ -22,6 +22,7 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+        $request->headers->set('Accept', 'application/json');
         $request->validate([
             'username' => 'required|string',
             'password' => 'required|string',
@@ -54,13 +55,15 @@ class AuthController extends Controller
         // 🔹 Klaim JWT
         $customClaims = $userType === 'pasien'
             ? [
-                'no_reg' => (string) $user->no_reg,
+                'sub' => (string) $user->no_reg, // <-- tambahkan sub secara eksplisit
+                'role' => 'pasien',
                 'username' => $user->username,
                 'nama' => $user->nama,
                 'role' => 'pasien',
             ]
             : [
-                'id' => (string) $user->id,
+                'sub' => (string) $user->id, // <-- tambahkan sub secara eksplisit
+                'role' => 'bidan',
                 'username' => $user->username,
                 'nama' => $user->nama,
                 'role' => 'bidan',

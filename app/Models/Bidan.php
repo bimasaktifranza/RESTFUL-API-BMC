@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class Bidan extends Authenticatable implements JWTSubject
 {
@@ -33,12 +35,80 @@ class Bidan extends Authenticatable implements JWTSubject
         return $this->hasMany(Pasien::class, 'bidan_id', 'id');
     }
 
+    public static function login(string $username, string $password): ?self
+{
+    $bidan = self::where('username', $username)->first();
+
+    if (!$bidan || !Hash::check($password, $bidan->password)) {
+        return null; // jangan lempar ValidationException
+    }
+
+    return $bidan;
+}
+
+
     // --- Metode wajib JWT ---
     public function getJWTIdentifier()
     {
         return $this->getKey();
     }
 
+    public function lihatDaftarPasien()
+    {
+        return $this->pasien()->get([
+            'no_reg',
+            'nama',
+            'umur',
+            'alamat',
+            'gravida',
+            'paritas',
+            'abortus'
+        ]);
+    }
+
+    public function mulaiPersalinan(Pasien $pasien)
+    {
+        if ($pasien->bidan_id !== $this->id) {
+            throw ValidationException::withMessages([
+                'pasien' => 'Pasien ini bukan pasien Anda.'
+            ]);
+        }
+
+        $existing = Persalinan::where('pasien_id', $pasien->id)
+            ->where('status', '!=', 'selesai')
+            ->first();
+
+        if ($existing) {
+            throw ValidationException::withMessages([
+                'persalinan' => 'Pasien ini sudah memiliki persalinan aktif.'
+            ]);
+        }
+
+        return Persalinan::create([
+            'pasien_id' => $pasien->id,
+            // mempertahankan nama field seperti di kode awal -- sesuaikan jika migration berbeda
+            'tanggalAwalRawat' => now(),
+            'status' => 'aktif',
+        ]);
+    }
+
+    public function kirimPesan(Pasien $pasien, string $isiPesan)
+    {
+        if ($pasien->bidan_id !== $this->id) {
+            throw ValidationException::withMessages([
+                'pasien' => 'Pasien ini bukan pasien Anda.'
+            ]);
+        }
+
+        return Pesan::create([
+            'bidan_id' => $this->id,
+            'pasien_id' => $pasien->id,
+            'isiPesan' => $isiPesan,
+            'pengirim' => 'bidan',
+            'waktuKirim' => now(),
+        ]);
+    }
+    
     public function getJWTCustomClaims()
     {
         return []; // Tidak ada tambahan claim
