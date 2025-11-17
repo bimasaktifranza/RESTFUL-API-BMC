@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('judul_konten', 40);
             $table->text('isi_konten');
             $table->string('bidan_id', 25)->nullable();
+            $table->timestamp();
         });
     }
 

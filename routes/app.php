@@ -11,6 +11,7 @@ use App\Http\Controllers\PasienController;
 use App\Http\Controllers\PersalinanController;
 use App\Http\Controllers\CatatanPartografController;
 use App\Http\Controllers\KontraksiController;
+use App\Http\Controllers\KontenEdukasiController;
 
 
 // Route::post('/login', [AuthController::class, 'login']);
@@ -30,6 +31,10 @@ Route::middleware([JwtCookieMiddleware::class])->group(function () {
     // Persalinan
     Route::get('/persalinan', [PersalinanController::class, 'index']);
     Route::put('/persalinan/{id}/status', [PersalinanController::class, 'ubahStatus']);
+
+    // Konten Edukasi untuk Pasien
+    Route::get('/konten-edukasi', [KontenEdukasiController::class, 'index']);
+    Route::get('/konten-edukasi/{id-konten}', [KontenEdukasiController::class, 'show']);
 });
 
 Route::middleware([JwtCookieMiddleware::class, BidanMiddleware::class])->group(function () {
@@ -42,5 +47,9 @@ Route::middleware([JwtCookieMiddleware::class, BidanMiddleware::class])->group(f
     Route::get('/partograf/{id}/catatan', [CatatanPartografController::class, 'getCatatanByPartograf']);
 
     Route::post('/catatan-partograf/{id}/kontraksi', [KontraksiController::class, 'store']);
+
+    // Konten Edukasi
+    Route::post('/konten-edukasi', [KontenEdukasiController::class, 'store']);
+    Route::delete('/konten-edukasi/{id}', [KontenEdukasiController::class, 'destroy']);
 
 });
