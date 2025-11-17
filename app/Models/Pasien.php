@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Bidan;
+use App\Models\Persalinan;
 
 class Pasien extends Authenticatable implements JWTSubject
 {
@@ -17,6 +18,7 @@ class Pasien extends Authenticatable implements JWTSubject
     protected $primaryKey = 'no_reg';
     public $incrementing = false;
     public $timestamps = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         'no_reg',
@@ -66,6 +68,11 @@ class Pasien extends Authenticatable implements JWTSubject
         $n = $jumlahPasienTahunIni + 1;
 
         return "PASIEN{$n}{$tahun}";
+    }
+
+    public function persalinan()
+    {
+        return $this->hasMany(Persalinan::class, 'pasien_no_reg', 'no_reg');
     }
 
     // JWT methods
