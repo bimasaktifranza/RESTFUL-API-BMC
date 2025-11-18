@@ -53,4 +53,13 @@ class PasienController extends Controller
         'token' => $token
     ])->withCookie($cookie);
 }
+ public function getBidan($no_reg)
+    {
+        $result = $this->pasienService->getBidanByPasien($no_reg);
+
+        $status = $result['status'];
+        unset($result['status']); // hapus key status dari JSON response
+
+        return response()->json($result, $status);
+    }
 }
