@@ -43,6 +43,9 @@ Route::middleware([JwtCookieMiddleware::class])->group(function () {
     Route::post('/pesan/{pengirimId}/{penerimaId}', [PesanController::class, 'kirimPesan']);
     Route::get('/pesan/{bidanId}/{pasienId}', [PesanController::class, 'ambilPesan']);
 
+    //get bidan by pasien no_reg
+    Route::get('/pasien/{no_reg}/bidanId', [PasienController::class, 'getBidan']);
+
 
 });
 
