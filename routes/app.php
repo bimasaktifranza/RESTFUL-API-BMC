@@ -33,6 +33,9 @@ Route::middleware([JwtCookieMiddleware::class])->group(function () {
     Route::get('/persalinan', [PersalinanController::class, 'index']);
     Route::put('/persalinan/{id}/status', [PersalinanController::class, 'ubahStatus']);
 
+    //
+    Route::get('/pasien/{no_reg}/catatan-partograf-terbaru', [CatatanPartografController::class, 'getCatatanPartografPasien']);
+
 
     // Konten Edukasi untuk Pasien
     Route::get('/konten-edukasi', [KontenEdukasiController::class, 'index']);
