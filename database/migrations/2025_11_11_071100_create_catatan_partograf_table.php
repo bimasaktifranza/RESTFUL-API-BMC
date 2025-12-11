@@ -35,6 +35,8 @@ return new class extends Migration
             $table->string('obat_cairan', 100)->nullable();
             $table->enum('air_ketuban', ['J', 'U', 'M','D','K'])->nullable();
             $table->enum('molase', ['0', '1', '2', '3'])->nullable();
+            $table->integer('kontraksi_frekuensi')->nullable();
+            $table->integer('kontraksi_durasi')->nullable();
             $table->string('partograf_id', 25)->nullable();
         });
     }

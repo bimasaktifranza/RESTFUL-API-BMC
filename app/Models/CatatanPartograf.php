@@ -33,6 +33,8 @@ class CatatanPartograf extends Model
         'volume_urine',
         'obat_cairan',
         'air_ketuban',
+        'kontraksi_frekuensi',
+        'kontraksi_durasi',
         'molase',
         'partograf_id',
     ];
@@ -66,6 +68,8 @@ class CatatanPartograf extends Model
             'volume_urine' => 'nullable|numeric',
             'obat_cairan' => 'nullable|string|max:100',
             'air_ketuban' => 'nullable|in:J,U,M,D,K',
+            'kontraksi_frekuensi' => 'nullable|numeric|min:0|max:5', // <--- TAMBAHAN
+            'kontraksi_durasi' => 'nullable|numeric|',
             'molase' => 'nullable|in:0,1,2,3',
         ]);
 
