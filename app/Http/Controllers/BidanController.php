@@ -125,4 +125,18 @@ class BidanController extends Controller
     }
 }
 
+    public function konfirmasiDarurat(Request $request, $idDarurat)
+    {
+        $bidan = auth('bidan')->user();
+
+        // PANGGIL FUNCTION MODEL SESUAI DIAGRAM
+        $berhasil = $bidan->konfirmasiDarurat($idDarurat);
+
+        if ($berhasil) {
+            return response()->json(['message' => 'Status darurat diselesaikan.'], 200);
+        } else {
+            return response()->json(['message' => 'Gagal konfirmasi. Data tidak ditemukan.'], 404);
+        }
+    }
+
 }

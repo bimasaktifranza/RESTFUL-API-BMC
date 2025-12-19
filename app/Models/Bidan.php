@@ -9,6 +9,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
+use App\Models\RiwayatDarurat;
 
 class Bidan extends Authenticatable implements JWTSubject
 {
@@ -197,6 +198,26 @@ class Bidan extends Authenticatable implements JWTSubject
 
         // 2. Hapus
         return $konten->delete();
+    }
+
+    public function konfirmasiDarurat(string $id_darurat): bool
+    {
+        // 1. Cari data darurat berdasarkan ID
+        $darurat = RiwayatDarurat::where('id', $id_darurat)
+            ->where('bidan_id', $this->id) // Pastikan milik bidan ini
+            ->first();
+
+        if (!$darurat) {
+            return false; // Data tidak ditemukan atau bukan milik bidan ini
+        }
+
+        // 2. Update Status (Logika diagram: mengubah status jadi RESOLVED)
+        $darurat->update([
+            'status' => 'RESOLVED',
+            'waktu_selesai' => now()
+        ]);
+
+        return true; // Berhasil
     }
 
     // --- JWT ---

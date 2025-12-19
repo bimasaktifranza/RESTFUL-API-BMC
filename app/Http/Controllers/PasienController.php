@@ -102,4 +102,26 @@ class PasienController extends Controller
             'data' => $data
         ], 200);
     }
+
+    public function darurat(Request $request)
+    {
+        // Ambil user pasien dari token JWT
+        $pasien = auth('pasien')->user(); 
+
+        if (!$pasien->bidan_id) {
+            return response()->json(['message' => 'Anda belum memiliki bidan.'], 400);
+        }
+
+        // PANGGIL FUNCTION MODEL SESUAI DIAGRAM
+        // Parameter 'tipe' kita hardcode 'PANIC_BUTTON' atau ambil dari request
+        $riwayat = $pasien->kirimSinyalDarurat('PANIC_BUTTON');
+
+        // Di sini nanti tempat logic Notifikasi Firebase (FCM) ke Bidan
+        // $this->fcmService->sendAlertToBidan($pasien->bidan_id, ...);
+
+        return response()->json([
+            'message' => 'Sinyal darurat terkirim!',
+            'data' => $riwayat
+        ], 201);
+    }
 }

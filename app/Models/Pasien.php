@@ -82,6 +82,27 @@ class Pasien extends Authenticatable implements JWTSubject
     return $service->getAllCatatanPartografPasien($this->no_reg);
 }
 
+    public function kirimSinyalDarurat(string $tipe): RiwayatDarurat
+    {
+        // 1. Generate ID Unik (Misal: EMG + Timestamp + Random)
+        $newId = 'EMG' . time() . rand(100, 999);
+
+        // 2. Buat Record RiwayatDarurat (Create)
+        // Sesuai logika diagram: Pasien "membuat" RiwayatDarurat
+        $darurat = RiwayatDarurat::create([
+            'id' => $newId,
+            'pasien_no_reg' => $this->no_reg,
+            'bidan_id' => $this->bidan_id, // Asumsi pasien sudah punya bidan
+            'waktu_dibuat' => now(),
+            'waktu_selesai' => null,
+            'status' => 'PENDING',
+            // 'tipe' tidak disimpan di DB sesuai diskusi sebelumnya, 
+            // tapi parameter tetap ada sesuai diagram untuk validasi logic jika perlu.
+        ]);
+
+        return $darurat;
+    }
+
 
     // JWT methods
     public function getJWTIdentifier()
